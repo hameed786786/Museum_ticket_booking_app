@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login & Signup</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-image: url('static/images/background.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 80px;
+            box-shadow: 0px 0px 10px whitesmoke;
+            width: 300px;
+            border-radius: 8px;
+        }
+        h1 {
+            text-align: center;
+            font-style: italic;
+            color: white;
+        }
+        .form-container {
+            display: none;
+        }
+        .form-container.active {
+            display: block;
+        }
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            border: 1px solid #ccc;
+            border-radius: 40px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: white;
+            border: none;
+            color: black;
+            border-radius: 40px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: lightgreen;
+        }
+        .toggle-link {
+            text-align: center;
+            margin-top: 10px;
+        }
+        .toggle-link a {
+            color: #007bff;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .toggle-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="form-container active" id="login-form">
+        <h1>Login</h1>
+        <form id="login">
+            <input type="text" id="login-username" name="username" placeholder="Username" required>
+            <i class='bx bxs-user-circle'></i>
+            <input type="password" id="login-password" name="password" placeholder="Password" required>
+            <i class='bx bxs-lock'></i>
+          
+            <button type="submit" >Login</button>
+            
+        </form>
+        <div class="toggle-link">
+            <p>Don't have an account? <a id="show-signup">Sign Up</a></p>
+        </div>
+    </div>
+
+    <div class="form-container" id="signup-form">
+        <h1>Sign Up</h1>
+        <form id="signup">
+            <input type="text" id="signup-username" name="username" placeholder="Username" required>
+            <i class='bx bxs-user-circle'></i>
+            <input type="password" id="signup-password" name="password" placeholder="Password" required>
+            <i class='bx bxs-lock'></i>
+            <input type="password" id="signup-confirm-password" name="confirm_password" placeholder="Confirm Password" required>
+            <i class='bx bx-check'></i>
+            <button type="submit">Sign Up</button>
+        </form>
+        <div class="toggle-link">
+            <p>Already have an account? <a id="show-login">Login</a></p>
+        </div>
+    </div>
+</div>
+
+<script>
+    const loginForm = document.getElementById('login-form');
+    const signupForm = document.getElementById('signup-form');
+    const showSignupLink = document.getElementById('show-signup');
+    const showLoginLink = document.getElementById('show-login');
+
+    showSignupLink.addEventListener('click', function() {
+        loginForm.classList.remove('active');
+        signupForm.classList.add('active');
+    });
+
+    showLoginLink.addEventListener('click', function() {
+        signupForm.classList.remove('active');
+        loginForm.classList.add('active');
+    });
+
+    // Validate Login Form
+    document.getElementById('login').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const username = document.getElementById('login-username').value.trim();
+        const password = document.getElementById('login-password').value.trim();
+    
+        if (username === "" || password === "") {
+            alert("Please fill in all fields.");
+            return;
+        }
+    
+        fetch('/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                username: username,
+                password: password,
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+            if (data.redirect_url) {
+                window.location.href = data.redirect_url;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    });
+    
+
+    // Validate Signup Form
+    document.getElementById('signup').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const username = document.getElementById('signup-username').value.trim();
+        const password = document.getElementById('signup-password').value.trim();
+        const confirmPassword = document.getElementById('signup-confirm-password').value.trim();
+
+        if (username === "" || password === "" || confirmPassword === "") {
+            alert("Please fill in all fields.");
+            return;
+        }
+
+        if (password !== confirmPassword) {
+            alert('Passwords do not match');
+            return;
+        }
+
+        fetch('/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                username: username,
+                password: password,
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    });
+</script>
+
+</body>
+</html>
